@@ -23,4 +23,9 @@ export class User {
 
   @DeleteDateColumn({ nullable: true })
   deletedAt: Timestamp;
+
+  createUser(email: string, password: string) {
+    this.email = email;
+    this.password = password;
+  }
 }
