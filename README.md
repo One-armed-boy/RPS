@@ -1,10 +1,16 @@
 # RPS
 MMR 기반 실시간 웹 가위바위보 매칭 서비스
 
+## Common
+- Github Action
+- NginX
+- Husky
+
 ## Server
 - TypeScript
 - NestJS
 - MySQL
+- TypeORM
 - Redis
 
 ## Client
