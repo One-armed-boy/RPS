@@ -5,7 +5,12 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // DTO에 등록된 프로퍼티만 가져옴
+      transform: true, // DTO에 명시된 각종 변환 로직 파이프 단에서 적용
+    }),
+  );
   await app.listen(3000);
 }
 bootstrap();
