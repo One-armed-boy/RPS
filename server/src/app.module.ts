@@ -16,6 +16,7 @@ import { DatabaseModule } from './db/database.module';
         DB_DATABASE: Joi.string().required(),
         DB_HOST: Joi.string().required(),
         DB_PORT: Joi.number().required(),
+        PASSWORD_HASH_ROUND: Joi.number().required(),
       }),
     }),
     DatabaseModule,
