@@ -23,7 +23,7 @@ export class AuthController {
   @UseGuards(AuthGuard('local')) // 의문점: 가드 단에서 인증을 해버리면 파이프를 통한 입력값 검증이 불가능하지 않나?
   @Post('login')
   async login(@Req() req: Request) {
-    // const loginResult = await this.authService.login(loginDto);
+    // 로그인 요청 성공 시 passport 모듈이 Request.user에 서비스 단에서 받은 데이터를 추가
     return req.user;
   }
 }
