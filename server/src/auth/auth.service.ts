@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@user/user.entity';
 import { Repository } from 'typeorm';
-import { SignupDto } from './dto/signup.dto';
+import { SignupDto } from '@auth/dto/signup.dto';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
+import { LoginDto } from '@auth/dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -12,6 +13,7 @@ export class AuthService {
     @InjectRepository(User) private userRepository: Repository<User>,
     private configService: ConfigService,
   ) {}
+
   async signup({ email, password }: SignupDto): Promise<boolean> {
     const duplicatedUser = await this.userRepository.findOneBy({
       email,
@@ -31,5 +33,22 @@ export class AuthService {
     await this.userRepository.save(newUser);
 
     return true;
+  }
+
+  async login({ email, password }: LoginDto): Promise<any> {
+    const foundUser = await this.userRepository.findOneBy({ email });
+
+    if (!foundUser) {
+      return;
+    }
+
+    const comparePassword = await bcrypt.compare(password, foundUser.password);
+
+    if (!comparePassword) {
+      return;
+    }
+
+    const { password: _, ...user } = foundUser;
+    return user;
   }
 }
