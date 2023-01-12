@@ -6,6 +6,11 @@ import { SignupDto } from '@auth/dto/signup.dto';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { LoginDto } from '@auth/dto/login.dto';
+import {
+  DuplicateEmailSignupException,
+  NonExistEmailLoginException,
+  WrongPasswordLoginException,
+} from '@auth/auth.exception';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +26,7 @@ export class AuthService {
     });
 
     if (duplicatedUser) {
-      return false;
+      throw new DuplicateEmailSignupException();
     }
 
     const saltRounds = this.configService.get<number>('PASSWORD_HASH_ROUND');
@@ -39,13 +44,13 @@ export class AuthService {
     const foundUser = await this.userRepository.findOneBy({ email });
 
     if (!foundUser) {
-      return;
+      throw new NonExistEmailLoginException();
     }
 
     const comparePassword = await bcrypt.compare(password, foundUser.password);
 
     if (!comparePassword) {
-      return;
+      throw new WrongPasswordLoginException();
     }
 
     const { password: _, ...user } = foundUser;
