@@ -11,12 +11,14 @@ import {
   NonExistEmailLoginException,
   WrongPasswordLoginException,
 } from '@auth/auth.exception';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     private configService: ConfigService,
+    private jwtService: JwtService,
   ) {}
 
   async signup({ email, password }: SignupDto): Promise<boolean> {
@@ -40,7 +42,7 @@ export class AuthService {
     return true;
   }
 
-  async login({ email, password }: LoginDto): Promise<any> {
+  async validateUser({ email, password }: LoginDto): Promise<any> {
     const foundUser = await this.userRepository.findOneBy({ email });
 
     if (!foundUser) {
@@ -55,5 +57,12 @@ export class AuthService {
 
     const { password: _, ...user } = foundUser;
     return user;
+  }
+
+  async login(user: any) {
+    const payload = { email: user.email };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
   }
 }
