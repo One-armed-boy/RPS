@@ -14,7 +14,7 @@ import {
   JwtAuthGuard,
   JwtRefreshAuthGuard,
   LocalAuthGuard,
-} from './auth.guard';
+} from '@auth/auth.guard';
 
 @Controller('auth')
 export class AuthController {

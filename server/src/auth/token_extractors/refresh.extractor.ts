@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Request } from 'express';
-import { TokenExtractor } from './parents.extractor';
+import { TokenExtractor } from '@auth/token_extractors/parents.extractor';
 
 @Injectable()
 export class RefreshTokenExtractor implements TokenExtractor {
