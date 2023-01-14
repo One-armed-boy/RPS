@@ -1,8 +1,7 @@
 import { AUTH_CONTSTANTS } from '@auth/auth.constant';
 import { InvalidRefreshTokenException } from '@auth/auth.exception';
-import { AccessTokenExtractor } from '@auth/token_extractors/access.extractor';
-import { RefreshTokenExtractor } from '@auth/token_extractors/refresh.extractor';
-import { Injectable } from '@nestjs/common';
+import { TokenExtractor } from '@auth/token_extractors/parents.extractor';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
@@ -12,7 +11,8 @@ import { Strategy } from 'passport-jwt';
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
     protected configService: ConfigService,
-    protected accessTokenExtractor: AccessTokenExtractor,
+    @Inject('ACCESS_TOKEN_EXTRACTOR')
+    protected accessTokenExtractor: TokenExtractor,
   ) {
     super({
       jwtFromRequest: accessTokenExtractor.extract,
@@ -37,7 +37,8 @@ export class JwtRefreshStrategy extends PassportStrategy(
 ) {
   constructor(
     protected configService: ConfigService,
-    protected refreshTokenExtractor: RefreshTokenExtractor,
+    @Inject('REFRESH_TOKEN_EXTRACTOR')
+    protected refreshTokenExtractor: TokenExtractor,
   ) {
     super({
       jwtFromRequest: refreshTokenExtractor.extract,

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@user/user.entity';
 import { Repository } from 'typeorm';
@@ -12,17 +12,16 @@ import {
   WrongPasswordLoginException,
 } from '@auth/auth.exception';
 import { Response } from 'express';
-import { AccessTokenIssuer } from './token_issuers/access.issuer';
-import { RefreshTokenIssuer } from './token_issuers/refresh.issuer';
-import { AUTH_CONTSTANTS } from './auth.constant';
+import { AUTH_CONTSTANTS } from '@auth/auth.constant';
+import { TokenIssuer } from '@auth/token_issuers/parents.issuer';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(User) private userRepository: Repository<User>,
     private configService: ConfigService,
-    private accessTokenService: AccessTokenIssuer,
-    private refreshTokenService: RefreshTokenIssuer,
+    @InjectRepository(User) private userRepository: Repository<User>,
+    @Inject('ACCESS_TOKEN_ISSUER') private accessTokenService: TokenIssuer,
+    @Inject('REFRESH_TOKEN_ISSUER') private refreshTokenService: TokenIssuer,
   ) {}
 
   async signup({ email, password }: SignupDto): Promise<boolean> {
