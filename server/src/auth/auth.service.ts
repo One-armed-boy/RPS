@@ -11,14 +11,18 @@ import {
   NonExistEmailLoginException,
   WrongPasswordLoginException,
 } from '@auth/auth.exception';
-import { JwtService } from '@nestjs/jwt';
+import { Response } from 'express';
+import { AccessTokenIssuer } from './token_issuers/access.issuer';
+import { RefreshTokenIssuer } from './token_issuers/refresh.issuer';
+import { AUTH_CONTSTANTS } from './auth.constant';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     private configService: ConfigService,
-    private jwtService: JwtService,
+    private accessTokenService: AccessTokenIssuer,
+    private refreshTokenService: RefreshTokenIssuer,
   ) {}
 
   async signup({ email, password }: SignupDto): Promise<boolean> {
@@ -31,7 +35,9 @@ export class AuthService {
       throw new DuplicateEmailSignupException();
     }
 
-    const saltRounds = this.configService.get<number>('PASSWORD_HASH_ROUND');
+    const saltRounds = this.configService.get<number>(
+      AUTH_CONTSTANTS.PASSWORD_HASH_ROUND,
+    );
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     const newUser = new User();
@@ -59,10 +65,45 @@ export class AuthService {
     return user;
   }
 
-  async login(user: any) {
-    const payload = { email: user.email };
+  async login(res: Response, user: { email?: string }) {
+    if (!user || !user.email) {
+      return {
+        result: false,
+      };
+    }
+    const { email } = user;
+    const accessToken = this.accessTokenService.sign(email);
+    const refreshToken = this.refreshTokenService.sign();
+
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      signed: true,
+      //secure: true,
+    });
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      signed: true,
+      //secure: true,
+    });
+
     return {
-      access_token: this.jwtService.sign(payload),
+      result: true,
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    };
+  }
+
+  async resignAccessToken(res: Response, user: { email?: string }) {
+    const { email } = user;
+    const accessToken = this.accessTokenService.sign(email);
+
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      signed: true,
+    });
+
+    return {
+      result: true,
     };
   }
 }
