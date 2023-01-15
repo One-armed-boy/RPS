@@ -14,6 +14,6 @@ async function bootstrap() {
       transform: true, // DTO에 명시된 각종 변환 로직 파이프 단에서 적용
     }),
   );
-  await app.listen(3000);
+  await app.listen(process.env.PORT);
 }
 bootstrap();
