@@ -1,3 +1,4 @@
+import { Request, Response } from 'express';
 import {
   Body,
   Controller,
@@ -9,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { SignupDto } from '@auth/dto/signup.dto';
 import { AuthService } from '@auth/auth.service';
-import { Request, Response } from 'express';
 import {
   JwtAuthGuard,
   JwtRefreshAuthGuard,
