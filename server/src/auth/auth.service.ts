@@ -1,4 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@user/user.entity';
 import { Repository } from 'typeorm';
@@ -14,11 +18,13 @@ import {
 import { Response } from 'express';
 import { AUTH_CONTSTANTS } from '@auth/auth.constant';
 import { TokenIssuer } from '@auth/token_issuers/parents.issuer';
+import { CacheService } from '@cache/cache.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private configService: ConfigService,
+    private cacheService: CacheService,
     @InjectRepository(User) private userRepository: Repository<User>,
     @Inject('ACCESS_TOKEN_ISSUER') private accessTokenService: TokenIssuer,
     @Inject('REFRESH_TOKEN_ISSUER') private refreshTokenService: TokenIssuer,
@@ -73,6 +79,15 @@ export class AuthService {
     const { email } = user;
     const accessToken = this.accessTokenService.sign(email);
     const refreshToken = this.refreshTokenService.sign();
+
+    const setRefreshTokenResult = await this.cacheService.setRefreshToken({
+      email,
+      refreshToken,
+    });
+
+    if (!setRefreshTokenResult) {
+      throw new InternalServerErrorException();
+    }
 
     res.cookie('access_token', accessToken, {
       httpOnly: true,

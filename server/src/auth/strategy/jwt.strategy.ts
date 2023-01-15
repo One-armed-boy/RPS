@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { Strategy } from 'passport-jwt';
+import { CacheService } from '@cache/cache.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -39,6 +40,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
     protected configService: ConfigService,
     @Inject('REFRESH_TOKEN_EXTRACTOR')
     protected refreshTokenExtractor: TokenExtractor,
+    private cacheService: CacheService,
   ) {
     super({
       jwtFromRequest: refreshTokenExtractor.extract,
@@ -52,10 +54,15 @@ export class JwtRefreshStrategy extends PassportStrategy(
 
   async validate(req: Request) {
     const refreshToken = this.refreshTokenExtractor.extract(req);
+    if (!refreshToken) {
+      throw new InvalidRefreshTokenException();
+    }
 
     // 향후 Redis 내 RefreshToken과 비교 로직 추가 요망
-    const tokenHolder = 'admin';
-    if (!refreshToken || !tokenHolder) {
+    const tokenHolder = await this.cacheService.getEmailUsingRefreshToken(
+      refreshToken,
+    );
+    if (!tokenHolder) {
       throw new InvalidRefreshTokenException();
     }
     return { email: tokenHolder };
