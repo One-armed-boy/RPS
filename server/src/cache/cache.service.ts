@@ -1,5 +1,5 @@
 import { AUTH_CONTSTANTS } from '@auth/auth.constant';
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SetRefreshTokenDto } from './dto/set-refreshToken.dto';
 import { RedisCacheService } from './redis/redis.service';
@@ -26,21 +26,27 @@ export class CacheService {
     email,
     refreshToken,
   }: SetRefreshTokenDto): Promise<boolean> {
-    const result = await this.cacheDBService.set(
-      this.getRefreshTokenKey(refreshToken),
-      email,
-      this.refreshTokenExpiredTime,
-    );
-    return result;
+    try {
+      return await this.cacheDBService.set(
+        this.getRefreshTokenKey(refreshToken),
+        email,
+        this.refreshTokenExpiredTime,
+      );
+    } catch {
+      throw new InternalServerErrorException();
+    }
   }
 
   // 책임: 캐싱된 리프레쉬 토큰을 통해 토큰 보유자가 누구인지 확인
   async getEmailUsingRefreshToken(
     refreshToken: string,
   ): Promise<string | null> {
-    const email = await this.cacheDBService.get(
-      this.getRefreshTokenKey(refreshToken),
-    );
-    return email;
+    try {
+      return await this.cacheDBService.get(
+        this.getRefreshTokenKey(refreshToken),
+      );
+    } catch {
+      throw new InternalServerErrorException();
+    }
   }
 }
