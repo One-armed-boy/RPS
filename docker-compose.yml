@@ -1,0 +1,45 @@
+version: '3'
+services:
+  # nginx:
+  #   image: nginx:latest
+  #   ports:
+  #     - 80:80
+  #     - 443:443
+  #   restart: unless-stopped
+  nestjs:
+    build: ./server
+    ports: 
+      - 3000:3000
+    restart: unless-stopped
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    depends_on:
+      - mysql
+      - redis6379
+  
+  mysql:
+    image: mysql:8.0.31
+    ports:
+      - 3306:3306
+    env_file:
+      - ./server/.env
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+  
+  redis6379:
+    image: redis:7.0.7
+    ports:
+      - 6379:6379
+    command: redis-server --requirepass $${CACHE_PASSWORD} --port 6379
+    env_file:
+      - ./server/.env
+    volumes:
+      - redis6379_data:/data
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+  
+volumes:
+  mysql_data:
+  redis6379_data:
