@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+cd server && echo "Server Linted..." && npx lint-staged && cd ..
+#cd client && npm test
