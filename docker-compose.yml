@@ -11,33 +11,29 @@ services:
     ports: 
       - 3000:3000
     restart: unless-stopped
-    extra_hosts:
-      - host.docker.internal:host-gateway
+    # extra_hosts:
+    #   - host.docker.internal:host-gateway
     depends_on:
       - mysql
       - redis6379
   
   mysql:
     image: mysql:8.0.31
-    ports:
-      - 3306:3306
+    # Docker-compose가 알아서 default Network를 형성한 뒤 
+    # Network 내 포트 들간의 연결을 수행하기 때문에 따로 외부 포트를 개방할 필요가 없음
     env_file:
       - ./server/.env
-    extra_hosts:
-      - host.docker.internal:host-gateway
     restart: unless-stopped
   
   redis6379:
     image: redis:7.0.7
-    ports:
-      - 6379:6379
-    command: redis-server --requirepass $${CACHE_PASSWORD} --port 6379
     env_file:
       - ./server/.env
+    # 환경 변수 불러오기 문제 트러블 슈팅
+    # link: https://stackoverflow.com/questions/68461172/docker-compose-redis-password-via-environment-variable
+    command: /bin/sh -c "redis-server --requirepass $$CACHE_PASSWORD --port 6379"
     volumes:
       - redis6379_data:/data
-    extra_hosts:
-      - host.docker.internal:host-gateway
     restart: unless-stopped
   
 volumes:
