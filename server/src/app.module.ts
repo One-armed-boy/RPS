@@ -15,7 +15,7 @@ import { DatabaseModule } from './db/database.module';
 
         MYSQL_ROOT_USERNAME: Joi.string().required(),
         MYSQL_ROOT_PASSWORD: Joi.string().required(),
-        DB_DATABASE: Joi.string().required(),
+        MYSQL_DATABASE: Joi.string().required(),
         DB_HOST: Joi.string().required(),
         DB_PORT: Joi.number().required(),
 
