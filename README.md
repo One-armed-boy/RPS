@@ -2,23 +2,26 @@
 MMR 기반 실시간 웹 가위바위보 매칭 서비스
 
 ## Common
-- Github Action
 - NginX
-- Husky
+- TypeScript
 
 ## Server
-- TypeScript
 - NestJS
 - MySQL
 - TypeORM
 - Redis
 
 ## Client
-- TypeScript
 - ReactJS
+
+## CI/CD
+- Github Action
+- Husky
+- Docker
 
 ## Naming Convention
 - class: PascalCase
+- interface: PascalCase
 - function: camelCase
 - variable: camelCase
 - constants: SNAKE_CASE
