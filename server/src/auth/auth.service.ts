@@ -107,6 +107,15 @@ export class AuthService {
     };
   }
 
+  logout(res: Response) {
+    res.clearCookie('access_token');
+    res.clearCookie('refresh_token');
+
+    return {
+      result: true,
+    };
+  }
+
   async resignAccessToken(res: Response, user: { email?: string }) {
     const { email } = user;
     const accessToken = this.accessTokenService.sign(email);
