@@ -6,7 +6,7 @@ import { RedisCacheService } from './redis/redis.service';
 
 @Injectable()
 export class CacheService {
-  private refreshTokenExpiredTime: string;
+  private refreshTokenExpiredTime: number;
 
   private getRefreshTokenKey(refreshToken: string): string {
     return `REFRESH_TOKEN:${refreshToken}:EMAIL`;
@@ -16,7 +16,7 @@ export class CacheService {
     private cacheDBService: RedisCacheService,
     private configService: ConfigService,
   ) {
-    this.refreshTokenExpiredTime = this.configService.get<string>(
+    this.refreshTokenExpiredTime = this.configService.get<number>(
       AUTH_CONTSTANTS.JWT_REFRESH_TOKEN_EXPIRE_TIME,
     );
   }

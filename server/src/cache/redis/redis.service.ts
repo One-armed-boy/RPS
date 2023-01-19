@@ -6,7 +6,7 @@ import { Redis } from 'ioredis';
 export class RedisCacheService {
   constructor(@InjectRedis() private redis: Redis) {}
 
-  async set(key: string, value: string, expiredTime: string): Promise<boolean> {
+  async set(key: string, value: string, expiredTime: number): Promise<boolean> {
     const result = await this.redis.setex(key, expiredTime, value);
     return result === 'OK';
   }

@@ -26,9 +26,9 @@ import { DatabaseModule } from './db/database.module';
         PASSWORD_HASH_ROUND: Joi.number().required(),
 
         JWT_ACCESS_TOKEN_SECRET: Joi.string().required(),
-        JWT_ACCESS_TOKEN_EXPIRE_TIME: Joi.string().required(),
+        JWT_ACCESS_TOKEN_EXPIRE_TIME: Joi.number().required(),
         JWT_REFRESH_TOKEN_SECRET: Joi.string().required(),
-        JWT_REFRESH_TOKEN_EXPIRE_TIME: Joi.string().required(),
+        JWT_REFRESH_TOKEN_EXPIRE_TIME: Joi.number().required(),
       }),
     }),
     DatabaseModule,

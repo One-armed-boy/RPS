@@ -58,7 +58,6 @@ export class JwtRefreshStrategy extends PassportStrategy(
       throw new InvalidRefreshTokenException();
     }
 
-    // 향후 Redis 내 RefreshToken과 비교 로직 추가 요망
     const tokenHolder = await this.cacheService.getEmailUsingRefreshToken(
       refreshToken,
     );
