@@ -8,7 +8,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { SignupDto } from '@auth/dto/signup.dto';
+import { SignupDto } from '@auth/dto';
 import { AuthService } from '@auth/auth.service';
 import {
   JwtAuthGuard,

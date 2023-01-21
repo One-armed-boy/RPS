@@ -1,8 +1,8 @@
 import { AUTH_CONTSTANTS } from '@auth/auth.constant';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { SetRefreshTokenDto } from './dto/set-refreshToken.dto';
-import { RedisCacheService } from './redis/redis.service';
+import { SetRefreshTokenDto } from '@cache/dto';
+import { RedisCacheService } from '@cache/redis/redis.service';
 
 @Injectable()
 export class CacheService {
