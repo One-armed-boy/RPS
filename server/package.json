@@ -66,6 +66,7 @@
     "husky": "^8.0.3",
     "jest": "28.1.3",
     "lint-staged": "^13.1.0",
+    "node-mocks-http": "^1.12.1",
     "prettier": "^2.3.2",
     "source-map-support": "^0.5.20",
     "supertest": "^6.1.3",
@@ -82,6 +83,12 @@
       "ts"
     ],
     "rootDir": "src",
+    "moduleNameMapper": {
+      "^@auth/(.*)$": "<rootDir>/auth/$1",
+      "^@user/(.*)$": "<rootDir>/user/$1",
+      "^@cache/(.*)$": "<rootDir>/cache/$1",
+      "^@db/(.*)$": "<rootDir>/db/$1"
+    },
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
@@ -92,7 +99,7 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
   },
-  "lint-staged":{
+  "lint-staged": {
     "*.{ts,tsx}": [
       "eslint --cache --fix"
     ]
