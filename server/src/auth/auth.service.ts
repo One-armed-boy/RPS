@@ -3,13 +3,10 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '@user/user.entity';
-import { Repository } from 'typeorm';
-import { SignupDto } from '@auth/dto/signup.dto';
+import { DataSource, Repository } from 'typeorm';
+import { SignupDto, LoginDto } from '@auth/dto';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
-import { LoginDto } from '@auth/dto/login.dto';
 import {
   DuplicateEmailSignupException,
   NonExistEmailLoginException,
@@ -19,38 +16,55 @@ import { Response } from 'express';
 import { AUTH_CONTSTANTS } from '@auth/auth.constant';
 import { TokenIssuer } from '@auth/token_issuers/parents.issuer';
 import { CacheService } from '@cache/cache.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from '@user/user.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     private configService: ConfigService,
     private cacheService: CacheService,
+    private dataSource: DataSource,
     @InjectRepository(User) private userRepository: Repository<User>,
     @Inject('ACCESS_TOKEN_ISSUER') private accessTokenService: TokenIssuer,
     @Inject('REFRESH_TOKEN_ISSUER') private refreshTokenService: TokenIssuer,
   ) {}
 
   async signup({ email, password }: SignupDto): Promise<boolean> {
-    const duplicatedUser = await this.userRepository.findOneBy({
-      email,
-      deletedAt: null,
-    });
+    const queryRunner = this.dataSource.createQueryRunner();
 
-    if (duplicatedUser) {
-      throw new DuplicateEmailSignupException();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const duplicatedUser = await queryRunner.manager
+        .getRepository(User)
+        .findOneBy({ email, deletedAt: null });
+
+      if (duplicatedUser) {
+        throw new DuplicateEmailSignupException();
+      }
+
+      const saltRounds = this.configService.get<number>(
+        AUTH_CONTSTANTS.PASSWORD_HASH_ROUND,
+      );
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+      const newUser = new User();
+      newUser.createUser(email, hashedPassword);
+
+      await queryRunner.manager.getRepository(User).save(newUser);
+
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
+
+      return true;
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
+
+      throw err;
     }
-
-    const saltRounds = this.configService.get<number>(
-      AUTH_CONTSTANTS.PASSWORD_HASH_ROUND,
-    );
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    const newUser = new User();
-    newUser.createUser(email, hashedPassword);
-
-    await this.userRepository.save(newUser);
-
-    return true;
   }
 
   async validateUser({ email, password }: LoginDto): Promise<any> {
@@ -72,9 +86,7 @@ export class AuthService {
 
   async login(res: Response, user: { email?: string }) {
     if (!user || !user.email) {
-      return {
-        result: false,
-      };
+      throw new InternalServerErrorException();
     }
     const { email } = user;
     const accessToken = this.accessTokenService.sign(email);

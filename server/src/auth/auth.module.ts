@@ -10,9 +10,10 @@ import { AccessTokenIssuer } from '@auth/token_issuers/access.issuer';
 import { RefreshTokenIssuer } from '@auth/token_issuers/refresh.issuer';
 import { AccessTokenExtractor } from '@auth/token_extractors/access.extractor';
 import { RefreshTokenExtractor } from '@auth/token_extractors/refresh.extractor';
+import { CacheModule } from '@cache/cache.module';
 
 @Module({
-  imports: [UserModule, PassportModule, JwtModule.register({})],
+  imports: [UserModule, CacheModule, PassportModule, JwtModule.register({})],
   controllers: [AuthController],
   providers: [
     AuthService,
