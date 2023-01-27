@@ -57,7 +57,7 @@ describe('AuthService', () => {
   describe('Login', () => {
     it('올바른 이메일과 비밀번호가 입력될 시', async () => {
       const mockUser = { email: 'abcd@gmail.com' };
-      expect(await authService.login(mockResponse, mockUser)).toEqual({
+      await expect(authService.login(mockResponse, mockUser)).resolves.toEqual({
         result: true,
         access_token: 'access_token',
         refresh_token: 'refresh_token',
